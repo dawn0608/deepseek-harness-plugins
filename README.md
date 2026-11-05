@@ -6,14 +6,14 @@
 
 | 插件 | 说明 | 适用 DSH | 安装包 |
 | --- | --- | --- | --- |
-| [session-cost](plugins/session-cost/README.md) | 在输入框下方显示当前会话花费与 DeepSeek 账户余额 | `>=0.2.2-rc.1 <0.3.0` | `@hu_dawn/dsh-session-cost` |
+| [session-cost](plugins/session-cost/README.md) | 在输入框下方显示当前会话花费与 DeepSeek 账户余额 | `>=0.2.2-rc.1 <0.3.0` | `@dawn0608/dsh-session-cost` |
 
 ## 安装
 
 Desktop 应用请在「插件」页搜索/安装上表的 npm 包名（npm 发布后可用）。非 Desktop profile 也可以使用 CLI：
 
 ```bash
-dsh plugin --profile <profile> add @hu_dawn/dsh-session-cost
+dsh plugin --profile <profile> add @dawn0608/dsh-session-cost
 ```
 
 安装后需要在 DSH 中配置 DeepSeek 模型和 `DEEPSEEK_API_KEY`。插件读取余额时使用当前配置的 API Key，不会读取或上传其他人的凭据。

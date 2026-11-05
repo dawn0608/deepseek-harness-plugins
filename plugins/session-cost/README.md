@@ -1,4 +1,4 @@
-# 会话花费（@hu_dawn/dsh-session-cost）
+# 会话花费（@dawn0608/dsh-session-cost）
 
 在输入框下方的会话统计旁增加一个统计 pill，显示：
 
@@ -8,10 +8,10 @@
 ## 安装
 
 - 适用 DSH 版本：`>=0.2.2-rc.1 <0.3.0`
-- npm 包名：`@hu_dawn/dsh-session-cost`
+- npm 包名：`@dawn0608/dsh-session-cost`
 - Desktop 应用请在「插件」页搜索/安装该包名；非 Desktop profile 可以使用：
   ```bash
-  dsh plugin --profile <profile> add @hu_dawn/dsh-session-cost
+  dsh plugin --profile <profile> add @dawn0608/dsh-session-cost
   ```
 - 余额读取使用当前 DSH 配置的 `DEEPSEEK_API_KEY`，不会使用插件作者或其他人的凭据。
 - 安装后，在输入框下方产生 token 后出现统计 pill；点击可查看明细。
