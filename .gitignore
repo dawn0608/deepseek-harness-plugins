@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# 本地环境与凭据；允许提交公开配置示例
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# 本地日志
+*.log
