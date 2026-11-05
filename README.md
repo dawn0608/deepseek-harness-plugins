@@ -10,13 +10,15 @@
 
 ## 安装
 
-Desktop 应用请在「插件」页搜索/安装上表的 npm 包名。非 Desktop profile 也可以使用 CLI：
+Desktop 应用请在「插件」页搜索/安装上表的 npm 包名（npm 发布后可用）。非 Desktop profile 也可以使用 CLI：
 
 ```bash
 dsh plugin --profile <profile> add @dawn0608/dsh-session-cost
 ```
 
 安装后需要在 DSH 中配置 DeepSeek 模型和 `DEEPSEEK_API_KEY`。插件读取余额时使用当前配置的 API Key，不会读取或上传其他人的凭据。
+
+也可以从 [GitHub Releases](https://github.com/dawn0608/deepseek-harness-plugins/releases) 下载本插件的 `.tgz`，在 DSH 插件页（如支持本地包入口）或 CLI 安装。
 
 如果要从本仓库的源码开发版安装，可以在插件目录本地打包：
 
