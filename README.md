@@ -10,7 +10,7 @@
 
 ## 安装
 
-Desktop 应用请在「插件」页搜索/安装上表的 npm 包名（npm 发布后可用）。非 Desktop profile 也可以使用 CLI：
+Desktop 应用请在「插件」页搜索/安装上表的 npm 包名。非 Desktop profile 也可以使用 CLI：
 
 ```bash
 dsh plugin --profile <profile> add @dawn0608/dsh-session-cost
