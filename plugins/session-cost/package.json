@@ -1,5 +1,5 @@
 {
-  "name": "@dawn0608/dsh-session-cost",
+  "name": "@hu_dawn/dsh-session-cost",
   "version": "1.0.0",
   "type": "module",
   "main": "./index.js",

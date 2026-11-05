@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@dawn0608/dsh-session-cost',
+  id: '@hu_dawn/dsh-session-cost',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -516,8 +516,8 @@ window.__ModuleLoader__.load({
 
         ctx.effect(() => {
           const tag = document.createElement('style');
-          tag.dataset.plugin = '@dawn0608/dsh-session-cost';
-          tag.dataset.pluginCss = '@dawn0608/dsh-session-cost/pill.css';
+          tag.dataset.plugin = '@hu_dawn/dsh-session-cost';
+          tag.dataset.pluginCss = '@hu_dawn/dsh-session-cost/pill.css';
           tag.textContent = CSS;
           document.head.appendChild(tag);
           return () => {
