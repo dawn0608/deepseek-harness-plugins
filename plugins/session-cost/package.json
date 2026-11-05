@@ -1,0 +1,65 @@
+{
+  "name": "@dawn0608/dsh-session-cost",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./index.js",
+  "description": "在输入框下方的会话统计旁显示当前会话按官方单价计算的花费和账户剩余余额。",
+  "license": "MIT",
+  "author": "dawn0608",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "plugin",
+    "session-cost"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dawn0608/deepseek-harness-plugins.git",
+    "directory": "plugins/session-cost"
+  },
+  "homepage": "https://github.com/dawn0608/deepseek-harness-plugins/tree/main/plugins/session-cost",
+  "bugs": {
+    "url": "https://github.com/dawn0608/deepseek-harness-plugins/issues"
+  },
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "pricing.js",
+    "cost.js",
+    "balance.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  }
+}

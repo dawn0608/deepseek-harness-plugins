@@ -1,6 +1,11 @@
 # macOS
 .DS_Store
 
+# Node / 打包产物
+node_modules/
+.pnpm-store/
+*.tgz
+
 # 本地环境与凭据；允许提交公开配置示例
 .env
 .env.*
