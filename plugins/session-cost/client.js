@@ -43,12 +43,41 @@ window.__ModuleLoader__.load({
         reasonPricePending: '价格获取中',
         reasonPriceFailed: '价格获取失败',
         reasonFailed: '读取失败',
+        unknownModel: '未知',
       },
     };
 
-    // DSH 的 locale 运行时保留 en 回退键；它与中文词典指向同一份内容，
-    // 因此插件不会渲染英文文案。
-    DICTS.en = DICTS.zh;
+    // en is now a real English dictionary. Keep its key set identical to zh.
+    DICTS.en = {
+      pillCost: '{amount}',
+      pillBalance: 'Balance {amount}',
+      pillBalanceUnknown: 'Balance —',
+      pillBalanceLoading: 'Balance …',
+      pillSeparator: '·',
+      panelTitle: 'Session cost & balance',
+      costTitle: 'Session cost',
+      modelLabel: 'Model',
+      callsLabel: 'Model requests',
+      callsValue: '{count}',
+      webLabel: 'Web search & fetch',
+      webValue: '{count}',
+      balanceLabel: 'Account balance',
+      bonusLabel: 'Granted',
+      statusLabel: 'Status',
+      balanceLoading: 'Loading…',
+      openDetails: 'Open the cost and balance breakdown',
+      reasonMissingKey: 'Missing API key',
+      reasonUnauthorized: 'Invalid API key',
+      reasonNetwork: 'Network error',
+      reasonTimeout: 'Request timed out',
+      reasonNoEndpoint: 'Host unreachable',
+      reasonNoWallet: 'No available balance',
+      reasonNotLive: 'Session not running',
+      reasonPricePending: 'Fetching prices',
+      reasonPriceFailed: 'Failed to fetch prices',
+      reasonFailed: 'Read failed',
+      unknownModel: 'Unknown',
+    };
 
     const CSS = [
       '.dshsc_anchor{min-width:0;flex:none;font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px));display:inline-flex}',
@@ -304,6 +333,7 @@ window.__ModuleLoader__.load({
           cells.push(h('dt', { key: `${key}-l` }, label));
           cells.push(h('dd', { key: `${key}-v` }, value));
         };
+        const modelLabel = label => (typeof label === 'string' && label !== '' ? label : translate('unknownModel'));
 
         if (view.exact) {
           const data = view.data;
@@ -311,14 +341,14 @@ window.__ModuleLoader__.load({
           if (models.length > 1) {
             // One line per model, carrying both its cost and its request count.
             models.forEach((model, index) => {
-              push(`model-${index}`, index === 0 ? translate('modelLabel') : '', `${model.label} ${money(model.cost, '¥')}`
+              push(`model-${index}`, index === 0 ? translate('modelLabel') : '', `${modelLabel(model.label)} ${money(model.cost, '¥')}`
                 + ` · ${translate('callsValue', { count: countText(model.calls) })}`);
             });
           } else {
             const selection = data.selection;
-            if (models.length === 1) push('model', translate('modelLabel'), models[0].label);
+            if (models.length === 1) push('model', translate('modelLabel'), modelLabel(models[0].label));
             else if (selection && typeof selection.label === 'string') {
-              push('model', translate('modelLabel'), selection.label);
+              push('model', translate('modelLabel'), modelLabel(selection.label));
             }
             push('calls', translate('callsLabel'), translate('callsValue', { count: countText(data.calls) }));
           }

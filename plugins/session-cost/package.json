@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "main": "./index.js",
-  "description": "在输入框下方的会话统计旁显示当前会话按官方单价计算的花费和账户剩余余额。",
+  "description": "Shows Session cost at official unit prices and the account balance beside composer stats.",
   "license": "MIT",
   "author": "dawn0608",
   "keywords": [
@@ -11,7 +11,11 @@
     "deepseek-harness",
     "dsh",
     "plugin",
-    "session-cost"
+    "session-cost",
+    "cost",
+    "billing",
+    "balance",
+    "usage"
   ],
   "repository": {
     "type": "git",
@@ -44,6 +48,7 @@
     "locale/*.json",
     "icon.svg",
     "README.md",
+    "README.zh.md",
     "LICENSE"
   ],
   "scripts": {

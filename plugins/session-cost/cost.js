@@ -36,7 +36,7 @@ export function resolveModel(modelId, table) {
     const fallback = table[DEFAULT_MODEL];
     return {
       key: raw === '' ? 'unknown' : raw,
-      label: raw === '' ? '未知' : raw,
+      label: raw === '' ? '' : raw,
       hit: fallback.hit,
       miss: fallback.miss,
       output: fallback.output,

@@ -241,7 +241,7 @@ test('resolves DeepSeek ids and leaves foreign ids unknown', () => {
   assert.equal(custom.unknown, true);
   assert.equal(resolveModel('deepseek-coder', table).unknown, true);
   assert.equal(resolveModel('', table).key, 'unknown');
-  assert.equal(resolveModel('', table).label, '未知');
+  assert.equal(resolveModel('', table).label, '');
 });
 
 test('detects the Beijing peak windows and weekends', () => {

@@ -1,110 +1,110 @@
-# 会话花费（@dawn0608/dsh-session-cost）
+# Session Cost (@dawn0608/dsh-session-cost)
 
-在输入框下方的会话统计旁增加一个统计 pill，显示：
+Adds a statistics pill next to the composer statistics that shows:
 
-- **当前会话的总花费**，按提供方的计费方式计算：每次已记录的模型调用 × 该调用自身模型与价格时段的官方单价；
-- **DeepSeek API 账户的剩余余额**，读取自 `GET https://api.deepseek.com/user/balance`。
+- **The current Session's total cost**, priced the way the provider bills it: every logged model call × the official unit price of that call's own model and price window;
+- **The remaining balance of the DeepSeek API account**, read from `GET https://api.deepseek.com/user/balance`.
 
-## 安装
+## Installation
 
-- 适用 DSH 版本：`>=0.2.2-rc.1 <0.3.0`
-- npm 包名：`@dawn0608/dsh-session-cost`
-- Desktop 应用请在「插件」页搜索/安装该包名；非 Desktop profile 可以使用：
+- DSH version: `>=0.2.2-rc.1 <0.3.0`
+- npm package: `@dawn0608/dsh-session-cost`
+- In the Desktop app, search for and install this package on the Plugins page; non-Desktop profiles can use:
   ```bash
   dsh plugin --profile <profile> add @dawn0608/dsh-session-cost
   ```
-- 余额读取使用当前 DSH 配置的 `DEEPSEEK_API_KEY`，不会使用插件作者或其他人的凭据。
-- 安装后，在输入框下方产生 token 后出现统计 pill；点击可查看明细。
+- The balance is read with the `DEEPSEEK_API_KEY` configured in the current DSH; it never uses the plugin author's or anyone else's credentials.
+- After installation, the statistics pill appears below the composer once the Session has produced tokens; click it to see the breakdown.
 
-源码与问题反馈：[GitHub 仓库](https://github.com/dawn0608/deepseek-harness-plugins)。
+Source and issue tracker: [GitHub repository](https://github.com/dawn0608/deepseek-harness-plugins).
 
-点击 pill 会打开与内置统计弹窗一致的布局——相同的 16px 内边距、12px/18px 字号、8px 标题分隔线和 6px 行间距——标题行显示总额，下面是一列明细：模型、模型请求次数、网页搜索与抓取次数（始终显示，包括 `0 次`；其费用已折入总额）以及账户余额。会话切换过模型时，每个模型单独一行，分别显示该模型的费用和请求次数。按 Escape、点击面板外部或再次点击按钮都会关闭。这里刻意不显示 token 数：内置的 `usage` pill 已经显示它们。
+Clicking the pill opens the same layout as the built-in statistics dialog — the same 16px padding, 12px/18px type, 8px title rule, and 6px row rhythm — with a title row carrying the total and a flat list of: model, model requests, web search & fetch counts (always shown, including `0`; their charge is folded into the total), and the account balance. A Session that switched models lists one line per model, with that model's own cost and request count. Escape, an outside pointer press, or the button itself closes it. Token counts are deliberately absent: the built-in `usage` pill already shows them.
 
-## 这里的“精确”指什么
+## What "exact" means here
 
-DeepSeek 公布的是**价格**，不是账单：没有按会话查询用量或账单的接口，只有账户余额。账单本身由 `tokens × 单价` 构成（[价格页](https://api-docs.deepseek.com/zh-cn/quick_start/pricing/)），所以本插件从会话日志重建这个公式：
+DeepSeek publishes **prices**, not a bill: there is no per-session usage or billing endpoint, only the account balance. The bill itself is formed as `tokens × unit price` ([pricing page](https://api-docs.deepseek.com/zh-cn/quick_start/pricing/)), so the plugin reconstructs that formula from the Session log:
 
-| 输入 | 来源 |
+| Input | Source |
 | --- | --- |
-| 每次调用的 token | `assistant/message` 事件的 `usage.inputTokens`（未命中的输入）、`cacheReadTokens`、`cacheWriteTokens`、`outputTokens` |
-| 已结束的尝试 | `assistant/attempt` 事件的记录流中最后一个 `usage` chunk（重试、失败、中断） |
-| 压缩调用 | `compaction/summary` 事件，本身携带 `usage` 和路由 |
-| 模型 | 同一事件的 `message.source.model` |
-| 价格时段 | 同一事件的 `time`，按北京时间计算 |
-| Search / Fetch | 每个成功且去重后的 `web_search` query、每个 `web_fetch` 各算一次请求，按 ¥5 / 1,000 计 |
+| tokens per call | `assistant/message` events: `usage.inputTokens` (the uncached, cache-miss part), `cacheReadTokens`, `cacheWriteTokens`, `outputTokens` |
+| retired attempts | the last `usage` chunk in the recorded stream of `assistant/attempt` events (retries, failures, interruptions) |
+| compaction calls | `compaction/summary` events, which carry their own `usage` and route |
+| model | the same event's `message.source.model` |
+| price window | the same event's `time`, priced in Beijing time |
+| Search / Fetch | one billed request per successful, de-duplicated `web_search` query and each `web_fetch`, at ¥5 / 1,000 |
 
-### 唯一价格来源：官方页面
+### One price source: the official page
 
-插件只使用 [`DOCS_URL`](pricing.js#L12) 公布的价格表，没有内置的模型价格副本，也没有本地覆盖，因此模型价格始终是官方价格。只有可读页面缺少 Search/Fetch 行时，才使用 Search/Fetch 的最后兜底价格（¥5 / 1,000）。页面最多每 24 小时重读一次；读取失败（包括成功加载后的某次刷新失败）会在 1 分钟后重试。只有六个价格都存在、处于合理范围，并且每个高峰价格恰好是空闲价格的 2 倍时才接受解析结果——这是页面声明的规则，不一致说明布局或计费方案已变化。
+The plugin uses only the table published at [`DOCS_URL`](pricing.js#L12), with no built-in model price copy and no local override, so model prices are always official. Only when a readable page omits its Search/Fetch rows does it use the last-resort Search/Fetch fallback price (¥5 / 1,000). The page is re-read at most once every 24 hours; a failed read (including a failed refresh after a successful load) retries after 1 minute. The parse is accepted only when all six prices exist, are in a plausible range, and every peak price is exactly twice its off-peak price — the page states that rule; a mismatch means the layout or the billing scheme changed.
 
-没有模型价格兜底的后果：
+Consequences of having no model-price fallback:
 
-- 首次成功读取之前**没有价格**，面板显示 `价格获取失败` / `价格获取中` 而不是数字（运行后的第一次请求会等待这次读取，因此能显示时会尽快显示）；
-- 之后刷新失败时保留上一张官方表——仍然是官方价格，只是较旧——失败只报告在 Host 的 `state` payload 中；
-- 价格来源和测量时刻都不是面板行：只有一个来源时没有可选项，因此面板只显示数字。
+- Before the first successful read there is **no price**, so the panel shows `Failed to fetch prices` / `Fetching prices` instead of a number (the first request of a run waits for that read, so the number appears as soon as it can);
+- When a later refresh fails, the previous official table is retained — still official, just older — and the failure is reported only in the Host `state` payload;
+- Neither the price source nor the measurement time is a panel row: with only one source there is nothing to choose, so the panel shows only the numbers.
 
-会话标题生成没有计入：日志记录了它的请求（`session/title-llm-request`），但没有记录用量，而且每个标题只是不到一分钱的量级。Messages 版网页搜索同样没有计入（只记录了请求，没有记录用量）；当前组合选择的是专用 Search/Fetch API，按请求计费。
+Session-title generation is not included: the log records its request (`session/title-llm-request`) but not its usage, and each title is worth less than a cent. Messages-based web search is also not included (its request is logged, not its usage); the shipped composition selects the dedicated Search/Fetch API, which is billed per request.
 
-不在 DeepSeek 家族中的模型 id，或未知的 DeepSeek id，会保留自己的行和真实 id，但按 `deepseek-flash` 价格计费，确保总额不会被静默丢弃；payload 会在 `unknownModels` 中列出这些 id。
+A model id outside the DeepSeek family, or an unknown DeepSeek id, keeps its own row and real id, but is priced at `deepseek-flash` rates so the total is never silently dropped; the payload lists such ids under `unknownModels`.
 
-账户余额是账户级的：标题生成、其他会话和其他进程也会消耗余额，所以 `会话花费` 和余额下降不要求精确到分一致。
+The account balance is account-wide: title generation, other Sessions, and other processes also spend it, so `Session cost` and the balance drop do not have to match to the cent.
 
-### 已知限制
+### Known limitations
 
-- 工作日遇到法定节假日时仍按高峰价格计算，因为无法离线取得节假日日历。这会高估账单，不会低估。
-- 价格时段使用事件结算时间。跨越时段边界的调用可能被归到与提供方不同的时段；日志没有每次尝试的权威请求开始时间。
-- 标题生成、子会话和 Messages 版网页搜索没有计入当前会话总额。
-- 余额通过 API Key 路由读取。使用 DeepSeek 账户登录的会话可能显示 `未配置 API Key`，而不是账户余额。
-- 多 query 的 `web_search` 如果部分 query 成功、部分失败，无法部分计费：工具只报告一个失败结果，因此插件不会为该次调用计费。
+- Weekday statutory holidays are still billed at peak prices because the holiday calendar is not available offline. This overestimates the bill, never underestimates it.
+- The price window uses the event settlement time. A call that crosses a window boundary may be assigned a different window than the provider used; the log has no authoritative request-start time for each attempt.
+- Title generation, subagent Sessions, and Messages-based web search are not included in the current Session total.
+- The balance is read through the API-key route. A Session signed in with a DeepSeek account may show `Missing API key` instead of an account balance.
+- A multi-query `web_search` that partially succeeds cannot be partially billed: the tool reports one failed result, so the plugin does not bill that call.
 
-## 数字从哪里来
+## Where the numbers come from
 
-浏览器永远看不到 API Key。`index.js`（Host 半侧）：
+The browser never sees the API key. `index.js` (Host half):
 
-1. 从设置目录读取 `llm-deepseek` 条目的实时 `apiKeyEnv` 和 `baseURL`（默认值：`DEEPSEEK_API_KEY` 和 `https://api.deepseek.com`）；
-2. 通过 `ctx.credentials` 解析该 key，再从启动环境解析；
-3. 调用 `GET <baseURL>/user/balance`，缓存 **1 分钟**（成功和失败都缓存），因此不会比这更频繁地访问上游；
-4. 把当前 Session 的日志折叠成精确成本，日志没有变化时复用上一次折叠结果（按日志偏移缓存，而不是按时间）；
-5. 通过两条路由返回同一份 payload：
-   - `GET /plugin/session-cost/state?session=<id>` —— 普通 Web 路由；
-   - `GET /api/session-cost/state?session=<id>` —— 连接共享通道上的精确 Fetch 路由，用于没有文档 origin 的 shell carrier。
+1. reads the live `apiKeyEnv` and `baseURL` of the `llm-deepseek` entry from the settings catalog (defaults: `DEEPSEEK_API_KEY` and `https://api.deepseek.com`);
+2. resolves that key through `ctx.credentials`, then from the launch environment;
+3. calls `GET <baseURL>/user/balance`, cached for **1 minute** (success and failure alike), so it never hits the upstream endpoint more often;
+4. folds the current Session's log into an exact cost, reusing the previous fold while the log has not changed (cached by log offset, not by time);
+5. returns one payload on two routes:
+   - `GET /plugin/session-cost/state?session=<id>` — a plain Web route;
+   - `GET /api/session-cost/state?session=<id>` — an exact Fetch route on the connection's shared channel, for a shell carrier without a document origin.
 
-`client.js`（Client 半侧）会在 token 总量变化时立即读取——与内置统计 pill 移动的是同一个事件——在 Session 变化时、挂载时、打开面板时、每五分钟以及标签页重新可见时读取。payload 中的余额来自 Host 的 1 分钟缓存，因此这种成本刷新不会放大上游余额请求。它会先尝试文档 origin（静态桌面页面则用 `__DSH_TRANSPORT__.streamBaseUrl` 的 origin），再尝试 `api/...` 通道形式。
+`client.js` (Client half) reads immediately when token totals change — the same event the built-in statistics pill moves on — when the Session changes, on mount, when the panel opens, every five minutes, and when the tab becomes visible. The balance in that payload comes from the Host's 1-minute cache, so this cost refresh never multiplies upstream balance requests. It tries the document origin (or the `__DSH_TRANSPORT__.streamBaseUrl` origin for a static desktop page) first, then the `api/...` channel form.
 
-如果 Session 不在运行，Host 返回 `not-live`，面板显示该状态；不会渲染估算值。
+If the Session is not live, the Host answers `not-live`, and the panel shows that status; no estimate is rendered.
 
-失败会明确显示，而不是永久转圈：`missing-key`、`unauthorized`、`network`、`timeout`、`no-wallet`、`not-live` 各自在面板中显示对应文案，pill 保持紧凑。
+Failures are explicit instead of a permanent spinner: `missing-key`, `unauthorized`, `network`, `timeout`, `no-wallet`, and `not-live` each render their own label in the panel, while the pill stays compact.
 
-## 行为
+## Behaviour
 
-- pill 是 `conversation.composer.dock` 的条目，id 为 `session-cost`，order 为 `2`，因此排在内置 `activity`（0）和 `usage`（1）之后，位于上下文 meter 之前。新 id 只增加一个控件，不会替换任何一个内置 pill。
-- pill 与内置统计同时出现：Session 产生 token 之前不显示，本 Session 自己的成本仍在读取时也不显示。
-- 精确成本显示为 `¥2.30`；官方价格表无法读取时 pill 显示 `—`，面板说明原因。
-- pill 不会省略：它保持固有宽度（`flex: none`），因此余额在其它统计旁仍完整可读。
-- 文案统一为中文；DSH 的 locale 运行时仍保留 `en` 键作为回退兼容项，其内容与中文词典相同；样式只使用 `--dsw-*` 主题 token。
+- The pill is a `conversation.composer.dock` entry with id `session-cost` and order `2`, so it follows the built-in `activity` (0) and `usage` (1) pills and precedes the context meter. A new id only adds a control; it does not replace either built-in pill.
+- The pill appears together with the built-in statistics: nothing until the Session has produced tokens, and nothing while this Session's own cost is still in flight.
+- An exact cost renders as `¥2.30`; when the official price table cannot be read, the pill shows `—` and the panel names the reason.
+- The pill never ellipsizes: it keeps its intrinsic width (`flex: none`), so the balance stays fully readable beside the other statistics.
+- Interface copy follows the DSH language (zh/en); styling uses only `--dsw-*` theme tokens.
 
-## 更新 Client 半侧
+## Updating the Client half
 
-Host 半侧通过 profile 重新组合（启用/禁用该行）重载。浏览器会保留已经加载的 bundle generation，因此修改 `client.js` 后需要刷新页面；如果刷新后旧的 pill 仍然存在，重启应用——重启会重新发布所有 bundle revision。
+The Host half reloads through a profile recomposition (enable/disable the row). The browser keeps the bundle generation it already loaded, so after editing `client.js`, refresh the page; if the old pill survives the refresh, restart the application — a restart republishes every bundle revision.
 
-## 文件布局
+## File layout
 
-| 文件 | 作用 |
+| File | Purpose |
 | --- | --- |
-| `cordis.patch.yml` | 插入组合包行。 |
-| `index.js` | Host 半侧：价格服务接线、余额请求、两条路由、Session 选择回退。 |
-| `pricing.js` | 官方价格页解析、刷新策略、Search/Fetch 价格。 |
-| `cost.js` | 纯成本折叠、模型解析、价格时段、Web 请求计数。 |
-| `balance.js` | 纯余额解析与端点归一化。 |
-| `client.js` | pill、面板、状态 store、locale 字典和样式。 |
-| `locale/{en,zh}.json` | 插件管理器标题和描述（均为中文；`en` 为 DSH locale 兼容键）。 |
-| `icon.svg` | 插件行图标。 |
-| `LICENSE` | MIT 许可证。 |
+| `cordis.patch.yml` | Inserts the bundle row. |
+| `index.js` | Host half: pricing service wiring, balance request, both routes, Session selection fallback. |
+| `pricing.js` | Official price-page parser, refresh policy, Search/Fetch prices. |
+| `cost.js` | Pure cost fold, model resolution, price windows, Web request units. |
+| `balance.js` | Pure balance parsing and endpoint normalization. |
+| `client.js` | Pill, panel, state store, locale dictionaries, and styles. |
+| `locale/{en,zh}.json` | Plugin Manager title and description; the zh detail uses `README.zh.md`, en defaults to `README.md`. |
+| `icon.svg` | Plugin row icon. |
+| `LICENSE` | MIT License. |
 
-## 验证
+## Verification
 
-- `node --test test/*.test.mjs` 覆盖解析器、刷新策略、成本折叠、模型解析、价格时段、Web 请求计数和余额辅助函数。
-- `GET /plugin/session-cost/state?session=<id>` 返回 `{ balance, cost }`；`cost.total` 等于对同一 Session 日志独立执行 `foldCost` 的结果。
-- 实时抓取官方价格页应得到 Flash 命中 0.02/0.04、未命中 1/2、输出 4/8；Pro 命中 0.15/0.3、未命中 4.5/9、输出 13.5/27；Search/Fetch 每次请求 0.005。
-- `cordis_inspect_query` → Client `Slots.listSubTree`，根为 `conversation.composer.dock`，在有 Session 打开时会报告 `session-cost` 占用者。
-- 渲染后的 pill 需要连接页面做视觉确认；打开面板应触发一次新的 state 读取。
+- `node --test test/*.test.mjs` covers the parser, refresh policy, cost fold, model resolution, price windows, Web request units, and balance helpers.
+- `GET /plugin/session-cost/state?session=<id>` returns `{ balance, cost }`; `cost.total` equals an independent `foldCost` of the same Session log.
+- A live fetch of the official price page should yield Flash hit 0.02/0.04, miss 1/2, output 4/8; Pro hit 0.15/0.3, miss 4.5/9, output 13.5/27; Search/Fetch 0.005 per request.
+- `cordis_inspect_query` → Client `Slots.listSubTree` with root `conversation.composer.dock` reports the `session-cost` occupant while a Session is open.
+- Visual confirmation of the rendered pill needs the connected page; opening the panel should trigger a new state read.
