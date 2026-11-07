@@ -1,6 +1,6 @@
 {
   "name": "@dawn0608/dsh-session-cost",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "main": "./index.js",
   "description": "Shows Session cost at official unit prices and the account balance beside composer stats.",
