@@ -1,5 +1,7 @@
 # Session Cost (@dawn0608/dsh-session-cost)
 
+English | [中文](README.zh.md)
+
 Adds a statistics pill next to the composer statistics that shows:
 
 - **The current Session's total cost**, priced the way the provider bills it: every logged model call × the official unit price of that call's own model and price window;
@@ -85,25 +87,30 @@ Failures are explicit instead of a permanent spinner: `missing-key`, `unauthoriz
 
 ## Updating the Client half
 
-The Host half reloads through a profile recomposition (enable/disable the row). The browser keeps the bundle generation it already loaded, so after editing `client.js`, refresh the page; if the old pill survives the refresh, restart the application — a restart republishes every bundle revision.
+`npm run build` bundles `src/index.js` to `lib/index.js` and `src/client/index.js` (with its modules and stylesheet) to `lib/client.js`. The Host half reloads through a profile recomposition (enable/disable the row). The browser keeps the bundle generation it already loaded, so after a rebuild refresh the page; if the old pill survives the refresh, restart the application — a restart republishes every bundle revision.
 
 ## File layout
 
 | File | Purpose |
 | --- | --- |
 | `cordis.patch.yml` | Inserts the bundle row. |
-| `index.js` | Host half: pricing service wiring, balance request, both routes, Session selection fallback. |
-| `pricing.js` | Official price-page parser, refresh policy, Search/Fetch prices. |
-| `cost.js` | Pure cost fold, model resolution, price windows, Web request units. |
-| `balance.js` | Pure balance parsing and endpoint normalization. |
-| `client.js` | Pill, panel, state store, locale dictionaries, and styles. |
+| `src/index.js` | Host half: pricing service wiring, balance request, both routes, Session selection fallback. |
+| `src/pricing.js` | Official price-page parser, refresh policy, Search/Fetch prices. |
+| `src/cost.js` | Pure cost fold, model resolution, price windows, Web request units. |
+| `src/balance.js` | Pure balance parsing and endpoint normalization. |
+| `src/client/index.js` | Pill, panel, slot registration. |
+| `src/client/i18n.js` | Chinese/English UI dictionaries and the locale-service binding. |
+| `src/client/store.js` | Browser state reader for the balance and the Session cost. |
+| `src/client/format.js` | Money, count, and currency formatting. |
+| `src/client/style.css` | Client styles, imported as text by the build. |
 | `locale/{en,zh}.json` | Plugin Manager title and description; the zh detail uses `README.zh.md`, en defaults to `README.md`. |
 | `icon.svg` | Plugin row icon. |
 | `LICENSE` | MIT License. |
+| `lib/` | Build output (`lib/index.js`, `lib/client.js`); created by `npm run build`, not committed. |
 
 ## Verification
 
-- `node --test test/*.test.mjs` covers the parser, refresh policy, cost fold, model resolution, price windows, Web request units, and balance helpers.
+- `npm run build` bundles both halves; `npm test` rebuilds and covers the parser, refresh policy, cost fold, model resolution, price windows, Web request units, balance helpers, locale dictionary parity, and the client loader contract (`lib/client.js` id, factory, `apply`/`inject`).
 - `GET /plugin/session-cost/state?session=<id>` returns `{ balance, cost }`; `cost.total` equals an independent `foldCost` of the same Session log.
 - A live fetch of the official price page should yield Flash hit 0.02/0.04, miss 1/2, output 4/8; Pro hit 0.15/0.3, miss 4.5/9, output 13.5/27; Search/Fetch 0.005 per request.
 - `cordis_inspect_query` → Client `Slots.listSubTree` with root `conversation.composer.dock` reports the `session-cost` occupant while a Session is open.

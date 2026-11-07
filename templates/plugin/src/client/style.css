@@ -1,0 +1,5 @@
+.dshex_anchor {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+}

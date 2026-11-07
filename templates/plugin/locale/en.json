@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Example plugin",
+    "description": "A minimal plugin skeleton for DeepSeek Harness."
+  }
+}

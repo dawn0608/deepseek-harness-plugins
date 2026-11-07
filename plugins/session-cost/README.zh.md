@@ -1,5 +1,7 @@
 # 会话花费（@dawn0608/dsh-session-cost）
 
+[English](README.md) | 中文
+
 在输入框下方的会话统计旁增加一个统计 pill，显示：
 
 - **当前会话的总花费**，按提供方的计费方式计算：每次已记录的模型调用 × 该调用自身模型与价格时段的官方单价；
@@ -85,25 +87,30 @@ DeepSeek 公布的是**价格**，不是账单：没有按会话查询用量或�
 
 ## 更新 Client 半侧
 
-Host 半侧通过 profile 重新组合（启用/禁用该行）重载。浏览器会保留已经加载的 bundle generation，因此修改 `client.js` 后需要刷新页面；如果刷新后旧的 pill 仍然存在，重启应用——重启会重新发布所有 bundle revision。
+`npm run build` 会把 `src/index.js` 打包为 `lib/index.js`，把 `src/client/index.js`（连同其模块与样式）打包为 `lib/client.js`。Host 半侧通过 profile 重新组合（启用/禁用该行）重载。浏览器会保留已经加载的 bundle generation，因此重新构建后需要刷新页面；如果刷新后旧的 pill 仍然存在，重启应用——重启会重新发布所有 bundle revision。
 
 ## 文件布局
 
 | 文件 | 作用 |
 | --- | --- |
 | `cordis.patch.yml` | 插入组合包行。 |
-| `index.js` | Host 半侧：价格服务接线、余额请求、两条路由、Session 选择回退。 |
-| `pricing.js` | 官方价格页解析、刷新策略、Search/Fetch 价格。 |
-| `cost.js` | 纯成本折叠、模型解析、价格时段、Web 请求计数。 |
-| `balance.js` | 纯余额解析与端点归一化。 |
-| `client.js` | pill、面板、状态 store、locale 字典和样式。 |
+| `src/index.js` | Host 半侧：价格服务接线、余额请求、两条路由、Session 选择回退。 |
+| `src/pricing.js` | 官方价格页解析、刷新策略、Search/Fetch 价格。 |
+| `src/cost.js` | 纯成本折叠、模型解析、价格时段、Web 请求计数。 |
+| `src/balance.js` | 纯余额解析与端点归一化。 |
+| `src/client/index.js` | pill、面板、slot 注册。 |
+| `src/client/i18n.js` | 中英文字典与 locale 服务绑定。 |
+| `src/client/store.js` | 浏览器侧余额与 Session 花费状态读取。 |
+| `src/client/format.js` | 金额、数量与货币符号格式化。 |
+| `src/client/style.css` | 客户端样式，构建期作为文本内联。 |
 | `locale/{en,zh}.json` | 插件管理器标题和描述；`zh` 详情使用 `README.zh.md`，`en` 默认使用 `README.md`。 |
 | `icon.svg` | 插件行图标。 |
 | `LICENSE` | MIT 许可证。 |
+| `lib/` | 构建产物（`lib/index.js`、`lib/client.js`），由 `npm run build` 生成，不入库。 |
 
 ## 验证
 
-- `node --test test/*.test.mjs` 覆盖解析器、刷新策略、成本折叠、模型解析、价格时段、Web 请求计数和余额辅助函数。
+- `npm run build` 构建 Host 与 Client 两半；`npm test` 会先重建，再覆盖解析器、刷新策略、成本折叠、模型解析、价格时段、Web 请求计数、余额辅助函数、locale 字典对齐与 client loader 契约（`lib/client.js` 的 id、factory、`apply`/`inject`）。
 - `GET /plugin/session-cost/state?session=<id>` 返回 `{ balance, cost }`；`cost.total` 等于对同一 Session 日志独立执行 `foldCost` 的结果。
 - 实时抓取官方价格页应得到 Flash 命中 0.02/0.04、未命中 1/2、输出 4/8；Pro 命中 0.15/0.3、未命中 4.5/9、输出 13.5/27；Search/Fetch 每次请求 0.005。
 - `cordis_inspect_query` → Client `Slots.listSubTree`，根为 `conversation.composer.dock`，在有 Session 打开时会报告 `session-cost` 占用者。

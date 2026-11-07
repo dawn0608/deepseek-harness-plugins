@@ -20,21 +20,39 @@ dsh plugin --profile <profile> add @dawn0608/dsh-session-cost
 
 也可以从 [GitHub Releases](https://github.com/dawn0608/deepseek-harness-plugins/releases) 下载本插件的 `.tgz`，在 DSH 插件页（如支持本地包入口）或 CLI 安装。
 
-如果要从本仓库的源码开发版安装，可以在插件目录本地打包：
+从仓库源码安装先构建，再按目录安装：
 
 ```bash
-cd plugins/session-cost
-npm pack
+npm install
+npm run build
+dsh plugin --profile <profile> add ./plugins/session-cost
 ```
 
 ## 开发
 
 ```bash
-cd plugins/session-cost
-npm test
+npm install        # 安装根目录的 esbuild
+npm run build      # 构建 plugins/* 的 lib/ 产物
+npm run check      # 校验插件布局与产物
+npm test           # 运行全部插件测试
 ```
 
-插件源码、适用版本、计费口径和已知限制详见各自的 README。
+插件源码、适用版本、计费口径和已知限制详见各自的 README；目录约定见 [AGENTS.md](AGENTS.md#插件结构)。
+
+## 新增插件
+
+1. `cp -R templates/plugin plugins/<name>`，替换包名、目录名、`cordis.patch.yml` 的 `id`、client 注册 id、locale 文案、CSS 前缀、README 与图标。
+2. 在根 `README.md` 的插件表增加一行。
+3. 运行 `npm run build && npm run check && npm test`。
+
+## 发布
+
+```bash
+cd plugins/<name>
+npm publish        # prepack 会先构建 lib/
+```
+
+发布前用 `npm pack --dry-run` 核对 tarball 内容；发布后同步版本 tag 与根 README 的插件表。
 
 ## 获取仓库
 

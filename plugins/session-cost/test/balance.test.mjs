@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { normalizeBase, numeric, walletsOf } from '../balance.js';
+import { normalizeBase, numeric, walletsOf } from '../src/balance.js';
 
 const fallback = 'https://api.deepseek.com';
 

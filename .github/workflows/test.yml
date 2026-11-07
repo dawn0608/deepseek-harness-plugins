@@ -15,6 +15,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Run session-cost tests
-        working-directory: plugins/session-cost
+          cache: npm
+      - name: Install tooling
+        run: npm ci
+      - name: Build plugins
+        run: npm run build
+      - name: Check plugin layout
+        run: npm run check
+      - name: Run plugin tests
         run: npm test
+      - name: Check template
+        run: |
+          npm --prefix templates/plugin run build
+          npm --prefix templates/plugin test

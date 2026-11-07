@@ -5,7 +5,7 @@ import {
   isPeak,
   resolveModel,
   searchUnits,
-} from '../cost.js';
+} from '../src/cost.js';
 
 const table = {
   'deepseek-flash': {

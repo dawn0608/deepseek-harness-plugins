@@ -6,6 +6,10 @@ node_modules/
 .pnpm-store/
 *.tgz
 
+# 插件构建产物（由 npm run build 生成）
+plugins/*/lib/
+templates/plugin/lib/
+
 # 本地环境与凭据；允许提交公开配置示例
 .env
 .env.*

@@ -5,7 +5,7 @@ import {
   PRICING_TTL_MS,
   parsePricing,
   pricingTtl,
-} from '../pricing.js';
+} from '../src/pricing.js';
 
 function html(rows) {
   return `<table>${rows.map(cells => `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</table>`;
